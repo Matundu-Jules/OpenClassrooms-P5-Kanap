@@ -8,54 +8,39 @@ function getProductID() {
   return url;
 }
 
-const request = async () => {
+const requestProductByID = async () => {
   let productID = getProductID();
   let response = await fetch(`http://localhost:3000/api/products/${productID}`);
 
   if (response.ok) {
-    let data = await response.json();
-    console.log(data);
-
-    displayProducts(
-      data.altTxt,
-      data.colors,
-      data.description,
-      data.imageUrl,
-      data.name,
-      data.price,
-      data.idProduct
-    );
+    // let data = await response.json();
+    return await response.json();
   } else {
     console.error("Statut du serveur : ", response.status);
   }
 };
 
 // Fonction qui créer les éléments HTML et affiche le produit :
-function displayProducts(
-  altTxt,
-  colors,
-  description,
-  imageUrl,
-  name,
-  price,
-  idProduct
-) {
+const displayProduct = async () => {
+  let product = await requestProductByID();
+  // console.log(product);
   // Ajout de l'image du produit + attribut alt :
   const newImg = document.createElement("img");
-  newImg.setAttribute("src", imageUrl);
-  newImg.setAttribute("alt", altTxt);
+  newImg.setAttribute("src", product.imageUrl);
+  newImg.setAttribute("alt", product.altTxt);
   document.querySelector(".item__img").appendChild(newImg);
 
   //   Ajout du contenu du titre h1 :
-  document.querySelector("#title").innerText = name;
+  document.querySelector("#title").innerText = product.name;
 
   //   Ajout du prix :
-  document.querySelector("#price").innerText = price;
+  document.querySelector("#price").innerText = product.price;
 
   //   Ajout de la description :
-  document.querySelector("#description").innerText = description;
+  document.querySelector("#description").innerText = product.description;
 
   // Ajout de la couleur :
+  const colors = product.colors;
   colors.forEach((element) => {
     //     console.log(element);
     const newColor = document.createElement("option");
@@ -63,9 +48,9 @@ function displayProducts(
     newColor.innerText = element;
     document.querySelector("#colors").appendChild(newColor);
   });
-}
+};
 
-request();
+displayProduct();
 
 // Ajout de produit dans le panier :
 const btnAddToCart = document.querySelector("#addToCart");
