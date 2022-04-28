@@ -9,6 +9,7 @@ module.exports = {
     product: path.join(__dirname, "js/product.js"),
     confirmation: path.join(__dirname, "js/confirmation.js"),
     cart: path.join(__dirname, "js/cart.js"),
+    function: path.join(__dirname, "js/function.js"),
   },
   output: {
     path: path.join(__dirname, "dist"),
@@ -44,12 +45,12 @@ module.exports = {
     new HtmlWebpackPlugin({
       filename: "index.html",
       template: path.join(__dirname, "./html/index.html"),
-      chunks: ["main"],
+      chunks: ["main", "function"],
     }),
     new HtmlWebpackPlugin({
       filename: "product.html",
       template: path.join(__dirname, "./html/product.html"),
-      chunks: ["product"],
+      chunks: ["product", "function"],
     }),
     new HtmlWebpackPlugin({
       filename: "confirmation.html",
@@ -59,7 +60,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       filename: "cart.html",
       template: path.join(__dirname, "./html/cart.html"),
-      chunks: ["cart"],
+      chunks: ["cart", "function"],
     }),
   ],
   stats: "minimal",

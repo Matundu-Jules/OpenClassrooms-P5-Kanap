@@ -1,19 +1,12 @@
 import "../css/style.css";
 import "../css/product.css";
-import { saveCart, getCart, addToCart } from "./cart";
-
-// Fonction qui récupère l'id dans l'URL :
-function getProductID() {
-  const url = new URLSearchParams(location.search).get("id");
-  return url;
-}
+import { addToCart, getProductID } from "./function";
 
 const requestProductByID = async () => {
   let productID = getProductID();
   let response = await fetch(`http://localhost:3000/api/products/${productID}`);
 
   if (response.ok) {
-    // let data = await response.json();
     return await response.json();
   } else {
     console.error("Statut du serveur : ", response.status);

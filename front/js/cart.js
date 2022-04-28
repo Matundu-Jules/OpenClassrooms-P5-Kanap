@@ -1,69 +1,25 @@
 import "../css/style.css";
 import "../css/cart.css";
-export { saveCart, getCart, addToCart };
 
-// Sauvegarder le panier dans le localStorage
-function saveCart(cart) {
-  localStorage.setItem("panier", JSON.stringify(cart));
-}
-
-// Récupérer le panier du localStorage
-function getCart() {
-  let cart = localStorage.getItem("panier");
-  if (cart == null) {
-    return [];
-  } else {
-    return JSON.parse(cart);
-  }
-}
-
-// Ajouter un produit au panier
-function addToCart(product) {
-  let cart = getCart();
-  let productIsHere = cart.find(
-    (p) => p.id == product.id && p.color == product.color
-  );
-  console.log(productIsHere);
-  if (productIsHere === undefined) {
-    cart.push(product);
-  } else if (productIsHere.color != product.color) {
-    cart.push(product);
-  } else if (
-    productIsHere.id === product.id &&
-    productIsHere.color === product.color
-  ) {
-    productIsHere.quantity += product.quantity;
-  }
-  saveCart(cart);
-}
-
-//
+import { getCart, deleteProductCart } from "./function";
 
 // Afficher les éléments dans la page panier :
 const requestProductByID = async (idProduct) => {
-  // let iDStorage = getIDStorage();
-  // console.log(iDStorage);
   let response = await fetch(`http://localhost:3000/api/products/${idProduct}`);
 
   if (response.ok) {
     let data = await response.json();
     return data;
-    console.log(data);
   } else {
     console.error("Statut du serveur : ", response.status);
   }
 };
 
-// requestProductByID();
-
+// Fonction qui récupère un article du localStorage via son id :
 const getProductByIDStorage = async () => {
   let cart = getCart();
-  console.log(cart);
   cart.forEach(async (element) => {
-    console.log(element.id);
-    console.log(element.color);
     let dataProduct = await requestProductByID(element.id);
-    console.log(dataProduct);
     displayProducts(dataProduct, element);
   });
 };
@@ -72,11 +28,12 @@ getProductByIDStorage();
 
 const displayProducts = (dataProduct, cart) => {
   //   Création de l'article et affichage :
+  const items = document.querySelector("#cart__items");
   const newArticle = document.createElement("article");
   newArticle.className = "cart__item";
   newArticle.setAttribute("data-id", cart.id);
   newArticle.setAttribute("data-color", cart.color);
-  document.querySelector("#cart__items").appendChild(newArticle);
+  items.appendChild(newArticle);
 
   // div .cart__item__img :
   const divImg = document.createElement("div");
@@ -144,4 +101,16 @@ const displayProducts = (dataProduct, cart) => {
   pDelete.className = "deleteItem";
   pDelete.textContent = "Supprimer";
   divDelete.appendChild(pDelete);
+  pDelete.addEventListener("click", (e) => {
+    deleteProductCart(newArticle);
+  });
+
+  // Quantity :
+  // document.querySelector("#totalQuantity").textContent =
+  //   displayTotalQuantity(cart);
+
+  // document.querySelector("#totalQuantity").textContent = ;
 };
+
+// let btnSupprimer = document.querySelector(".deleteItem");
+// console.log(btnSupprimer);
