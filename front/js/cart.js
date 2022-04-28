@@ -1,7 +1,12 @@
 import "../css/style.css";
 import "../css/cart.css";
 
-import { getCart, deleteProductCart } from "./function";
+import {
+  getCart,
+  deleteProductCart,
+  getTotalQuantity,
+  changeQuantity,
+} from "./function";
 
 // Afficher les éléments dans la page panier :
 const requestProductByID = async (idProduct) => {
@@ -24,9 +29,33 @@ const getProductByIDStorage = async () => {
   });
 };
 
+// Fonction qui additionne le prix total des produits dans le panier :
+const getTotalPrice = async () => {
+  let cart = getCart();
+  let quantity;
+  let price;
+  let totalPrice = Number();
+  for (let i = 0; i < cart.length; i++) {
+    // console.log(cart);
+    // console.log(cart[i]);
+    // console.log(dataProduct);
+    // console.log(quantity);
+    // console.log(price);
+    let dataProduct = await requestProductByID(cart[i].id);
+
+    quantity = cart[i].quantity;
+    price = dataProduct.price;
+
+    totalPrice += quantity * price;
+  }
+
+  // console.log("totalPrice : ", totalPrice);
+  return totalPrice;
+};
+
 getProductByIDStorage();
 
-const displayProducts = (dataProduct, cart) => {
+const displayProducts = async (dataProduct, cart) => {
   //   Création de l'article et affichage :
   const items = document.querySelector("#cart__items");
   const newArticle = document.createElement("article");
@@ -64,7 +93,7 @@ const displayProducts = (dataProduct, cart) => {
   colorDescription.textContent = cart.color;
 
   const priceDescription = document.createElement("p");
-  priceDescription.textContent = dataProduct.price;
+  priceDescription.textContent = `${dataProduct.price} €`;
   divDescription.append(h2Description, colorDescription, priceDescription);
 
   // div .cart__item__content__settings :
@@ -88,8 +117,13 @@ const displayProducts = (dataProduct, cart) => {
   input.setAttribute("min", "1");
   input.setAttribute("max", "100");
   input.setAttribute("value", cart.quantity);
-
   divQuantity.append(pQuantity, input);
+
+  input.addEventListener("change", async (e) => {
+    changeQuantity(newArticle, input);
+    document.querySelector("#totalQuantity").textContent = getTotalQuantity();
+    document.querySelector("#totalPrice").textContent = await getTotalPrice();
+  });
 
   // div .cart__item__content__settings__delete :
   const divDelete = document.createElement("div");
@@ -101,16 +135,15 @@ const displayProducts = (dataProduct, cart) => {
   pDelete.className = "deleteItem";
   pDelete.textContent = "Supprimer";
   divDelete.appendChild(pDelete);
-  pDelete.addEventListener("click", (e) => {
+  pDelete.addEventListener("click", async (e) => {
     deleteProductCart(newArticle);
+    document.querySelector("#totalQuantity").textContent = getTotalQuantity();
+    document.querySelector("#totalPrice").textContent = await getTotalPrice();
   });
 
   // Quantity :
-  // document.querySelector("#totalQuantity").textContent =
-  //   displayTotalQuantity(cart);
+  document.querySelector("#totalQuantity").textContent = getTotalQuantity();
 
-  // document.querySelector("#totalQuantity").textContent = ;
+  // Price :
+  document.querySelector("#totalPrice").textContent = await getTotalPrice();
 };
-
-// let btnSupprimer = document.querySelector(".deleteItem");
-// console.log(btnSupprimer);
