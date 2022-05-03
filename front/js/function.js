@@ -6,6 +6,8 @@ export {
   deleteProductCart,
   getTotalQuantity,
   changeQuantity,
+  formVerify,
+  hasNumber,
 };
 
 // Fonction qui récupère l'id dans l'URL :
@@ -90,7 +92,9 @@ const changeQuantity = (product, input) => {
   let newQuantity = input.value;
   console.log(newQuantity);
   cart.forEach((element) => {
-    if (element.id == id && element.color == color) {
+    if (input.value == 0) {
+      deleteProductCart(product);
+    } else if (element.id == id && element.color == color) {
       element.quantity = newQuantity;
       console.log(element);
       saveCart(cart);
@@ -116,3 +120,146 @@ const getTotalPrice = async () => {
   console.log(totalPrice);
   return totalPrice;
 }; */
+
+/* ---------------------------------- Formulaire ---------------------------------- */
+
+// Regex : Vérifier si une string contient un nombre ou pas
+function hasNumber(string) {
+  return /\d/.test(string);
+}
+
+// Regex : Vérifier si la string contient des car spéciaux autre que ceux indiquer
+function hasSpecialChars(string) {
+  return /[^a-zA-Zé'èçàäâîï-]/.test(string);
+}
+
+// Regex : Vérifier si l'adresse est bonne :
+function isValidAddress(string) {
+  return /^[0-9]{1,6}\s[a-zA-Zé'èçàäâîï]{1,15}\s[a-zA-Zé'èçàäâîï\s-]{1,30}$/.test(
+    string
+  );
+}
+
+// Regex : Vérifier si l'email est valide :
+function isValidEmail(string) {
+  return /^[a-z0-9._-]+@[a-z0-9._-]{2,}\.[a-z]{2,4}$/.test(string);
+}
+
+// Afficher le message d'erreur
+const setError = (element, errorMsg) => {
+  element.style.border = "3px solid red";
+  const errorElem = element.nextElementSibling;
+  // console.log(errorElem);
+  //   Ajout du message d'erreur
+  errorElem.innerText = errorMsg;
+};
+
+// Afficher une validation sur les input correctement renseigné
+function setSuccess(element) {
+  element.style.border = "3px solid green";
+  const errorElem = element.nextElementSibling;
+  // console.log(errorElem);
+  //   Ajout du message d'erreur
+  errorElem.innerText = "";
+}
+
+// Vérification du firstname ou lastname
+const nameVerif = (nameElem, nameValue) => {
+  if (nameValue === "" || nameValue.length < 3) {
+    let errorMsg = "Minimum 3 caractères.";
+    setError(nameElem, errorMsg);
+  } else if (hasNumber(nameValue)) {
+    let errorMsg = "Le champ ne doit pas contenir de chiffres.";
+    setError(nameElem, errorMsg);
+  } else if (hasSpecialChars(nameValue)) {
+    let errorMsg = "Caractères spéciaux non autorisé.";
+    setError(nameElem, errorMsg);
+  } else {
+    setSuccess(nameElem);
+    return nameValue.charAt(0).toUpperCase() + nameValue.slice(1);
+  }
+};
+
+// Vérification input adresse
+function addressVerif(addressElem, addressValue) {
+  if (addressValue === "" || addressValue.length < 8) {
+    let errorMsg = "Minimum 8 caractères.";
+    setError(addressElem, errorMsg);
+  } else if (!isValidAddress(addressValue)) {
+    let errorMsg = "Veuillez indiquer une addresse valide.";
+    setError(addressElem, errorMsg);
+  } else {
+    setSuccess(addressElem);
+    return addressValue;
+  }
+}
+
+// Vérification input ville
+function cityVerif(cityElem, cityValue) {
+  if (cityValue === "") {
+    let errorMsg = "Ce champ doit être renseigner.";
+    setError(cityElem, errorMsg);
+  } else if (hasNumber(cityValue)) {
+    let errorMsg = "La ville ne peux pas contenir de numéro.";
+    setError(cityElem, errorMsg);
+  } else if (hasSpecialChars(cityValue)) {
+    let errorMsg = "Caractères spéciaux non autorisé.";
+    setError(cityElem, errorMsg);
+  } else {
+    setSuccess(cityElem);
+    return cityValue;
+  }
+}
+
+// Vérification Email
+function emailVerif(emailElem, emailValue) {
+  if (emailValue === "") {
+    let errorMsg = "Veuillez renseigner une adresse email.";
+    setError(emailElem, errorMsg);
+  } else if (!isValidEmail(emailValue)) {
+    let errorMsg = "Veuillez renseigner une adresse email valide.";
+    setError(emailElem, errorMsg);
+  } else {
+    setSuccess(emailElem);
+    return emailValue;
+  }
+}
+
+// Vérification du formulaire
+const formVerify = (
+  formData,
+  formElem,
+  firstNameElem,
+  lastNameElem,
+  addressElem,
+  cityElem,
+  emailElem
+) => {
+  // Récupération des valeurs des inputs et suppressions ds espaces avant/après
+  const firstNameValue = firstNameElem.value.trim();
+  const lastNameValue = lastNameElem.value.trim();
+  const addressValue = addressElem.value.trim();
+  const cityValue = cityElem.value.trim();
+  const emailValue = emailElem.value.trim();
+
+  // Ajout des valeurs du fomulaire dans le FormData en supprimant tout les espaces avant/apres :
+  formData.set("firstName", nameVerif(firstNameElem, firstNameValue));
+  formData.set("lastName", nameVerif(lastNameElem, lastNameValue));
+  formData.set("address", addressVerif(addressElem, addressValue));
+  formData.set("city", cityVerif(cityElem, cityValue));
+  formData.set("email", emailVerif(emailElem, emailValue));
+
+  // console.log(isCompleteAddress(addressValue));
+
+  // console.log(hasSpecialChars(cityValue));
+
+  console.log(formData.get("firstName"));
+  console.log(formData.get("lastName"));
+  console.log(formData.get("address"));
+  console.log(formData.get("city"));
+  console.log(formData.get("email"));
+
+  // for (let pair of formData) {
+  //   console.log(pair);
+  // }
+};

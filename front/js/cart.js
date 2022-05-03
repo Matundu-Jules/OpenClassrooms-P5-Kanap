@@ -6,6 +6,7 @@ import {
   deleteProductCart,
   getTotalQuantity,
   changeQuantity,
+  formVerify,
 } from "./function";
 
 // Afficher les éléments dans la page panier :
@@ -119,6 +120,7 @@ const displayProducts = async (dataProduct, cart) => {
   input.setAttribute("value", cart.quantity);
   divQuantity.append(pQuantity, input);
 
+  // Event Quantity :
   input.addEventListener("change", async (e) => {
     changeQuantity(newArticle, input);
     document.querySelector("#totalQuantity").textContent = getTotalQuantity();
@@ -135,6 +137,8 @@ const displayProducts = async (dataProduct, cart) => {
   pDelete.className = "deleteItem";
   pDelete.textContent = "Supprimer";
   divDelete.appendChild(pDelete);
+
+  // Event Delete :
   pDelete.addEventListener("click", async (e) => {
     deleteProductCart(newArticle);
     document.querySelector("#totalQuantity").textContent = getTotalQuantity();
@@ -147,3 +151,26 @@ const displayProducts = async (dataProduct, cart) => {
   // Price :
   document.querySelector("#totalPrice").textContent = await getTotalPrice();
 };
+
+/* ---------------------------------- Formulaire ---------------------------------- */
+// Récupération des éléments HTML :
+const form = document.querySelector(".cart__order__form");
+const firstName = document.querySelector("#firstName");
+const lastName = document.querySelector("#lastName");
+const address = document.querySelector("#address");
+const city = document.querySelector("#city");
+const email = document.querySelector("#email");
+
+// Soumission du formulaire :
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const contact = new FormData();
+
+  formVerify(contact, form, firstName, lastName, address, city, email);
+  // const firstName = formData.get("firstName");
+  // const lastName = formData.get("lastName");
+  // const address = formData.get("address");
+  // const city = formData.get("city");
+  // const email = formData.get("email");
+  // console.log(email);
+});
