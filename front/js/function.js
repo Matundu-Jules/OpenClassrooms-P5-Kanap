@@ -8,6 +8,8 @@ export {
   changeQuantity,
   formVerify,
   hasNumber,
+  getArrayIDCart,
+  sendOrder,
 };
 
 // Fonction qui récupère l'id dans l'URL :
@@ -15,6 +17,28 @@ function getProductID() {
   const url = new URLSearchParams(location.search).get("id");
   return url;
 }
+
+/* ---------------------------------- Requêtes HTTP ---------------------------------- */
+
+const sendOrder = async (contact, products) => {
+  let requetePost = await fetch("http://localhost:3000/api/products/order", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ contact, products }),
+  });
+
+  if (requetePost.ok) {
+    let data = await requetePost.json();
+    return data;
+  } else {
+    console.error("Statut du serveur : ", requetePost.status);
+  }
+};
+
+/* ---------------------------------- Panier ---------------------------------- */
 
 // Sauvegarder le panier dans le localStorage
 function saveCart(cart) {
@@ -29,6 +53,20 @@ function getCart() {
   } else {
     return JSON.parse(cart);
   }
+}
+
+// Récupérer un tableau contenant tout les ID des produits contenu dans le panier
+function getArrayIDCart() {
+  let cart = getCart();
+  let arrayIDCart = [];
+  cart.forEach((e) => {
+    // console.log(e);
+    arrayIDCart.push(e.id);
+    // console.log(arrayIDCart);
+  });
+  console.log(arrayIDCart);
+  // console.log("cart : ", cart);
+  return arrayIDCart;
 }
 
 // Ajouter un produit au panier
@@ -51,7 +89,7 @@ function addToCart(product) {
   saveCart(cart);
 }
 
-// Fonction qui permet de supprimer un article du panier :
+// Supprimer un article du panier :
 const deleteProductCart = (product) => {
   let id = product.dataset.id;
   let color = product.dataset.color;
@@ -72,7 +110,7 @@ const deleteProductCart = (product) => {
   });
 };
 
-// Fonction qui recupère la quantité totale de produit dans le panier :
+// Récupèrer la quantité totale de produit dans le panier :
 const getTotalQuantity = () => {
   let cart = getCart();
   let totalQuantity = 0;
@@ -84,7 +122,7 @@ const getTotalQuantity = () => {
   return totalQuantity;
 };
 
-// Fonction qui permet de modifier la quantité d'un produit dans le panier :
+// Modifier la quantité d'un produit dans le panier :
 const changeQuantity = (product, input) => {
   let id = product.dataset.id;
   let color = product.dataset.color;
@@ -207,7 +245,7 @@ function cityVerif(cityElem, cityValue) {
     setError(cityElem, errorMsg);
   } else {
     setSuccess(cityElem);
-    return cityValue;
+    return cityValue.charAt(0).toUpperCase() + cityValue.slice(1);
   }
 }
 
@@ -226,8 +264,7 @@ function emailVerif(emailElem, emailValue) {
 }
 
 // Vérification du formulaire
-const formVerify = (
-  formData,
+/* const formVerify = (
   formElem,
   firstNameElem,
   lastNameElem,
@@ -235,6 +272,9 @@ const formVerify = (
   cityElem,
   emailElem
 ) => {
+  // Création d'un FormData vide
+  const formData = new FormData();
+
   // Récupération des valeurs des inputs et suppressions ds espaces avant/après
   const firstNameValue = firstNameElem.value.trim();
   const lastNameValue = lastNameElem.value.trim();
@@ -258,6 +298,42 @@ const formVerify = (
   console.log(formData.get("address"));
   console.log(formData.get("city"));
   console.log(formData.get("email"));
+
+  return formData;
+
+  // for (let pair of formData) {
+  //   console.log(pair);
+  // }
+};
+ */
+
+const formVerify = (
+  formElem,
+  firstNameElem,
+  lastNameElem,
+  addressElem,
+  cityElem,
+  emailElem
+) => {
+  // Création d'un FormData vide
+  const contact = {};
+
+  // Récupération des valeurs des inputs et suppressions ds espaces avant/après
+  const firstNameValue = firstNameElem.value.trim();
+  const lastNameValue = lastNameElem.value.trim();
+  const addressValue = addressElem.value.trim();
+  const cityValue = cityElem.value.trim();
+  const emailValue = emailElem.value.trim();
+
+  contact.firstName = nameVerif(firstNameElem, firstNameValue);
+  contact.lastName = nameVerif(lastNameElem, lastNameValue);
+  contact.address = addressVerif(addressElem, addressValue);
+  contact.city = cityVerif(cityElem, cityValue);
+  contact.email = emailVerif(emailElem, emailValue);
+
+  console.log("log contact function : ", contact);
+
+  return contact;
 
   // for (let pair of formData) {
   //   console.log(pair);

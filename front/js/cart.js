@@ -7,6 +7,8 @@ import {
   getTotalQuantity,
   changeQuantity,
   formVerify,
+  getArrayIDCart,
+  sendOrder,
 } from "./function";
 
 // Afficher les éléments dans la page panier :
@@ -162,15 +164,20 @@ const city = document.querySelector("#city");
 const email = document.querySelector("#email");
 
 // Soumission du formulaire :
-form.addEventListener("submit", (e) => {
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const contact = new FormData();
+  const contact = formVerify(form, firstName, lastName, address, city, email);
 
-  formVerify(contact, form, firstName, lastName, address, city, email);
-  // const firstName = formData.get("firstName");
-  // const lastName = formData.get("lastName");
-  // const address = formData.get("address");
-  // const city = formData.get("city");
-  // const email = formData.get("email");
-  // console.log(email);
+  console.log("log contact event : ", contact);
+
+  let products = getArrayIDCart();
+  console.log("Array of ID : ", products);
+
+  // let order = JSON.stringify(contact) + JSON.stringify(arrayIDCart);
+  // let test = JSON.stringify({ contact, products });
+  // console.log(test);
+
+  // Envoie de la requete
+  let dataResponsePost = await sendOrder(contact, products);
+  console.log(dataResponsePost);
 });
