@@ -10,6 +10,9 @@ export {
   hasNumber,
   getArrayIDCart,
   sendOrder,
+  requestProductByID,
+  getTotalPrice,
+  sortLocalStorage,
 };
 
 // Fonction qui récupère l'id dans l'URL :
@@ -19,7 +22,19 @@ function getProductID() {
 }
 
 /* ---------------------------------- Requêtes HTTP ---------------------------------- */
+// Requête POST pour récupérer un seul produit via son id
+const requestProductByID = async (idProduct) => {
+  let response = await fetch(`http://localhost:3000/api/products/${idProduct}`);
 
+  if (response.ok) {
+    let data = await response.json();
+    return data;
+  } else {
+    console.error("Statut du serveur : ", response.status);
+  }
+};
+
+// Envoi des données formulaire(obj contact) et du tableau d'id(product)
 const sendOrder = async (contact, products) => {
   let requetePost = await fetch("http://localhost:3000/api/products/order", {
     method: "POST",
@@ -48,11 +63,36 @@ function saveCart(cart) {
 // Récupérer le panier du localStorage
 function getCart() {
   let cart = localStorage.getItem("panier");
-  if (cart == null) {
+  // console.log(cart);
+  if (cart === null) {
     return [];
   } else {
     return JSON.parse(cart);
   }
+}
+
+// Fonction de trie croissante pour l'id et la couleur :
+function sortArray(x, y) {
+  if (x.id < y.id) {
+    return -1;
+  }
+  if (x.id > y.id) {
+    return 1;
+  }
+  if (x.color < y.color) {
+    return -1;
+  }
+  if (x.color > y.color) {
+    return 1;
+  }
+  return 0;
+}
+
+// Trier le localStorage par id :
+function sortLocalStorage(cart) {
+  cart.sort(sortArray);
+  console.log("sort cart : ", cart);
+  saveCart(cart);
 }
 
 // Récupérer un tableau contenant tout les ID des produits contenu dans le panier
@@ -138,6 +178,29 @@ const changeQuantity = (product, input) => {
       saveCart(cart);
     }
   });
+};
+
+const getTotalPrice = async () => {
+  let cart = getCart();
+  let quantity;
+  let price;
+  let totalPrice = Number();
+  for (let i = 0; i < cart.length; i++) {
+    // console.log(cart);
+    // console.log(cart[i]);
+    // console.log(dataProduct);
+    // console.log(quantity);
+    // console.log(price);
+    let dataProduct = await requestProductByID(cart[i].id);
+
+    quantity = cart[i].quantity;
+    price = dataProduct.price;
+
+    totalPrice += quantity * price;
+  }
+
+  // console.log("totalPrice : ", totalPrice);
+  return totalPrice;
 };
 
 /* // Fonction qui additionne le prix total des produits dans le panier :
