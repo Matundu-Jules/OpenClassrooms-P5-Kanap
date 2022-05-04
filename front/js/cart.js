@@ -9,6 +9,7 @@ import {
   formVerify,
   getArrayIDCart,
   sendOrder,
+  saveCart,
 } from "./function";
 
 // Afficher les éléments dans la page panier :
@@ -26,10 +27,19 @@ const requestProductByID = async (idProduct) => {
 // Fonction qui récupère un article du localStorage via son id :
 const getProductByIDStorage = async () => {
   let cart = getCart();
-  cart.forEach(async (element) => {
-    let dataProduct = await requestProductByID(element.id);
-    displayProducts(dataProduct, element);
-  });
+  console.log("test : ", cart);
+  if (cart == []) {
+    // displayProducts(cart);
+    console.log("sdsdf", cart);
+    let dataProduct = {};
+    // displayProducts(dataProduct, cart);
+  } else {
+    cart.forEach(async (element) => {
+      let dataProduct = await requestProductByID(element.id);
+      console.log(element);
+      displayProducts(dataProduct, element);
+    });
+  }
 };
 
 // Fonction qui additionne le prix total des produits dans le panier :
@@ -59,6 +69,13 @@ const getTotalPrice = async () => {
 getProductByIDStorage();
 
 const displayProducts = async (dataProduct, cart) => {
+  // let test = getCart();
+  console.log(cart);
+  if (cart === []) {
+    const empyCartMsg = document.createElement("p");
+    empyCartMsg.textContent = "Votre panier est vide.";
+    document.querySelector("#cart__items").append(empyCartMsg);
+  }
   //   Création de l'article et affichage :
   const items = document.querySelector("#cart__items");
   const newArticle = document.createElement("article");
@@ -178,6 +195,19 @@ form.addEventListener("submit", async (e) => {
   // console.log(test);
 
   // Envoie de la requete
-  let dataResponsePost = await sendOrder(contact, products);
-  console.log(dataResponsePost);
+  // let dataResponsePost = await sendOrder(contact, products);
+  // console.log(
+  //   "le test sa mere : ",
+  //   (await sendOrder(contact, products)).orderId
+  // );
+  // console.log("data : ", dataResponsePost);
+  // console.log("orderId : ", dataResponsePost.orderId);
+
+  // Redirection page confirmation
+  location.href = `./confirmation.html?id=${
+    (await sendOrder(contact, products)).orderId
+  }`;
+
+  // Vider le panier
+  localStorage.removeItem("panier");
 });
