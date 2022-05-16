@@ -55,7 +55,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       filename: "confirmation.html",
       template: path.join(__dirname, "./html/confirmation.html"),
-      chunks: ["confirmation"],
+      chunks: ["confirmation", "function"],
     }),
     new HtmlWebpackPlugin({
       filename: "cart.html",
