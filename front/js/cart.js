@@ -59,6 +59,12 @@ function sortArray(x, y) {
   return 0;
 }
 
+// Trier le panier (localStorage) par id et couleur :
+function sortLocalStorage(cart) {
+  cart.sort(sortArray);
+  saveCart(cart);
+}
+
 // Récupérer un tableau contenant tout les ID des produits contenu dans le panier
 function getArrayIDCart() {
   let cart = getCart();
@@ -69,12 +75,6 @@ function getArrayIDCart() {
   });
 
   return arrayIDCart;
-}
-
-// Trier le panier (localStorage) par id et couleur :
-function sortLocalStorage(cart) {
-  cart.sort(sortArray);
-  saveCart(cart);
 }
 
 // Supprimer un article du panier :
@@ -89,7 +89,9 @@ async function deleteProductCart(article) {
   saveCart(cart);
 
   document.querySelector("#totalQuantity").textContent = getTotalQuantity();
-  document.querySelector("#totalPrice").textContent = await getTotalPrice(cart);
+  document.querySelector("#totalPrice").textContent = await getTotalPrice(
+    getCart()
+  );
 }
 
 // Modifier la quantité d'un produit dans le panier :
@@ -101,7 +103,7 @@ async function changeQuantity(article, input) {
 
   cart.forEach((element) => {
     if (input.value == 0) {
-      deleteProductCart(cart, article);
+      deleteProductCart(article);
     } else if (element.id == id && element.color == color) {
       element.quantity = newQuantity;
       saveCart(cart);
